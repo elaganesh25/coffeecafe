@@ -25,4 +25,4 @@ jobs:
       with:
         context: .
         push: true
-        tags: yourusername/coffeeshop_web:latest
+        tags: elaganesh25/coffeeshop_web:latest

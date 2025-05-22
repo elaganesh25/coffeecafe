@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: coffeeshop-web
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: coffeeshop-web
+  template:
+    metadata:
+      labels:
+        app: coffeeshop-web
+    spec:
+      containers:
+      - name: coffeeshop-web
+        image: elaganesh25/coffeeshop_web:latest
+        ports:
+        - containerPort: 8000
+        env:
+        - name: DJANGO_SETTINGS_MODULE
+          value: projectmini.settings
+        # Add other environment variables as needed

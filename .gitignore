@@ -4,13 +4,9 @@ __pycache__/
 *.log
 *.pot
 *.pyc
-<<<<<<< HEAD
 venv/
-=======
-*.venv/
->>>>>>> 682606ee27359a890cbbbd9221cfd87d33240ce9
 
 # Docker
 *.tar
 *.img
-*.dockerfile
+*.dockerfile 

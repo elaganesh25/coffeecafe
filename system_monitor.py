@@ -167,7 +167,8 @@ if __name__ == "__main__":
     # See: https://support.google.com/accounts/answer/185833
     email_config = {
         'sender_email': 'elaganesh25@gmail.com',
-        'sender_password': 'fugqrodzecwgltvl',
+       # 'sender_password': 'fugqrodzecwgltvl',
+        'sender_password': 'TestAdmin@123',
         'recipient': 'ganesh06_25@yahoo.com' 
     }
     

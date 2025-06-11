@@ -1,11 +1,11 @@
-name: Build and Push Docker Image
+name: Build, Scan, and Deploy
 
 on:
   push:
     branches: [ main ]
 
 jobs:
-  build:
+  build-and-scan:
     runs-on: ubuntu-latest
 
     steps:
@@ -16,11 +16,16 @@ jobs:
       uses: docker/setup-buildx-action@v3
 
     - name: Login to DockerHub
-     
-      run: docker login -u elaganesh25  -p ${{ secrets.DOCKERGITHUBACTION }}
-    
+      run: docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Build Docker image
+      run: docker build -t elaganesh25/coffeeshop_web:latest .
+
+    - name: Push Docker image
+      run: docker push elaganesh25/coffeeshop_web:latest
+
     - name: Run Trivy vulnerability scanner
-      uses: aquasecurity/trivy-action@7b7aa264d83dc58691451798b4d117d53d21edf
+      uses: aquasecurity/trivy-action@7b7aa264d83dc58691451798b4d117d53d21edfe
       with:
         image-ref: elaganesh25/coffeeshop_web:latest
         format: table
@@ -34,15 +39,9 @@ jobs:
       with:
         config-path: ""
         fail: true
-    - name: Build and push
-      uses: docker/build-push-action@v5
-      with:
-        context: .
-        push: true
-        tags: elaganesh25/coffeeshop_web:latest
-  
+
   deploy:
-    needs: build
+    needs: build-and-scan
     runs-on: ubuntu-latest
 
     steps:

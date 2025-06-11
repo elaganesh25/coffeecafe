@@ -84,7 +84,7 @@ def alert(message, alert_type="INFO", email_config=None):
         try:
             import winsound
             winsound.Beep(1000, 500)  # Frequency: 1000Hz, Duration: 500ms
-        except:
+        except Exception:
             pass
 
 def monitor_system(interval=1, duration=10, cpu_threshold=5, memory_threshold=40, email_config=None):
@@ -177,8 +177,8 @@ if __name__ == "__main__":
     # Uncomment to enable logging to file
     # log_to_file()
     
-    print(f"Starting system monitoring with alerts...")
-    print(f"Press Ctrl+C to stop monitoring\n")
+    print("Starting system monitoring with alerts...")
+    print("Press Ctrl+C to stop monitoring\n")
     
     try:
         # You can adjust these thresholds based on your system

@@ -36,9 +36,7 @@ jobs:
 
     - name: Run Gitleaks secret scan
       uses: gitleaks/gitleaks-action@v2
-      with:
-        config-path: ""
-        fail: true
+   
 
   deploy:
     needs: build-and-scan

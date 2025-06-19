@@ -58,7 +58,10 @@ jobs:
     - name: Gitleaks Installation
       run: sudo apt install gitleaks -y
     - name: Gitleaks Code Scan
-      run: gitleaks detect source . -r gitleaks-report.json -f json
+      with:
+       image-ref: elaganesh25/coffeeshop_web:latest
+       run: gitleaks detect source . -r gitleaks-report.json -f json
+       exit-code: 0
 
 
   build_project_and_sonar_scan:

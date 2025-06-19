@@ -65,8 +65,12 @@ jobs:
     needs: security-check
     steps:
     - uses: actions/checkout@v4
+    - name: Install dependencies
+      run: pip install -r requirements.txt
     - name: Unit Test Cases
-      run: python3 manage.py test
+      run: |
+       python -m pip install --upgrade pip
+       python3 manage.py test
 
   build_project_and_sonar_scan:
     runs-on: self-hosted-image

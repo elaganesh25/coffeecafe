@@ -65,6 +65,10 @@ jobs:
     needs: security-check
     steps:
     - uses: actions/checkout@v4
+    - name: set up Python
+      uses: action/setup-python@5
+      with:
+        python-version: '3.12'
     - name: Unit Test Cases
       run: python manage.py test
 

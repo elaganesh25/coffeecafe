@@ -32,7 +32,7 @@ jobs:
         python manage.py test
       
   security-check:
-    runs-on: self-hosted-image
+    runs-on: elaganesh25/coffeeshop_web:latest
     needs: compile
 
     steps:
@@ -48,7 +48,7 @@ jobs:
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@7b7aa264d83dc58691451798b4d117d53d21edfe
       with:
-        image-ref: self-hosted-image
+        image-ref: elaganesh25/coffeeshop_web:latest
         format: table
         exit-code: 1
         ignore-unfixed: true
@@ -61,7 +61,7 @@ jobs:
       run: gitleaks detect source . -r gitleaks-report.json -f json
 
   test:
-    runs-on: self-hosted-image
+    runs-on: elaganesh25/coffeeshop_web:latest
     needs: security-check
     steps:
     - uses: actions/checkout@v4
@@ -69,7 +69,7 @@ jobs:
       run: python manage.py test
 
   build_project_and_sonar_scan:
-    runs-on: self-hosted-image
+    runs-on: elaganesh25/coffeeshop_web:latest
     needs: test
     steps:
         
@@ -93,7 +93,7 @@ jobs:
           SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
 
   buils_docker_image_and_push:
-    runs-on: self-hosted-image
+    runs-on: elaganesh25/coffeeshop_web:latest
     needs: build_project_and_sonar_scan
     steps:
     - uses: actions/checkout@v4

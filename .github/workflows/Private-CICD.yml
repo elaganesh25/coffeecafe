@@ -48,7 +48,7 @@ jobs:
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@7b7aa264d83dc58691451798b4d117d53d21edfe
       with:
-        image-ref: self-hosted
+        image-ref: self-hosted-image
         format: table
         exit-code: 1
         ignore-unfixed: true
@@ -61,7 +61,7 @@ jobs:
       run: gitleaks detect source . -r gitleaks-report.json -f json
 
   test:
-    runs-on: self-hosted
+    runs-on: self-hosted-image
     needs: security-check
     steps:
     - uses: actions/checkout@v4
@@ -69,18 +69,16 @@ jobs:
       run: python manage.py test
 
   build_project_and_sonar_scan:
-    runs-on: self-hosted
+    runs-on: self-hosted-image
     needs: test
     steps:
-    - uses: actions/checkout@v4
- 
         
     - uses: actions/checkout@v4
       with:
         # Disabling shallow clones is recommended for improving the relevancy of reporting
         fetch-depth: 0
     - name: SonarQube Scan
-      uses: SonarSource/sonarqube-scan-action@v10.4.0 # Ex: v4.1.0, See the latest version at https://github.com/marketplace/actions/official-sonarqube-scan
+      uses: SonarSource/sonarqube-scan-action@v5.2.0 # See the latest version at https://github.com/marketplace/actions/official-sonarqube-scan
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
@@ -95,7 +93,7 @@ jobs:
           SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
 
   buils_docker_image_and_push:
-    runs-on: self-hosted
+    runs-on: self-hosted-image
     needs: build_project_and_sonar_scan
     steps:
     - uses: actions/checkout@v4
@@ -119,11 +117,11 @@ jobs:
       with:
         context: .
         push: true
-        tags: adijaiswal/bankapp:latest
+        tags: elaganesh25/self-hosted-image:latest
         file: ./Dockerfile
 
   deploy_to_kubernetes:
-    runs-on: self-hosted
+    runs-on: self-hosted-image
     needs: buils_docker_image_and_push
     steps:
     - name: Checkout Code

@@ -32,7 +32,7 @@ jobs:
       run: |
         python manage.py test
       
-  security-check:
+  Build-and-VulScan:
     runs-on: self-hosted-image
     needs: compile
 
@@ -89,7 +89,7 @@ jobs:
   Sonar_Scan:
     name: SonarQube
     runs-on: self-hosted-image
-    needs: security-check
+    needs: Build-and-VulScan
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4

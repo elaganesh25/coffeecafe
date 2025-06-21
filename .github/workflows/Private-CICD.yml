@@ -67,18 +67,18 @@ jobs:
       uses: aquasecurity/trivy-action@7b7aa264d83dc58691451798b4d117d53d21edfe
       with:
         image-ref: 'elaganesh25/self-hosted-image:latest'
-        #format: table
-        format: sarif
+        format: table
+        #format: sarif
         exit-code: 0
         ignore-unfixed: true
         output: 'trivy-results.sarif'
         vuln-type: 'os,library'
         severity: 'CRITICAL,HIGH'
 
-    - name: Upload Trivy scan results to GitHub Security tab
-      uses: github/codeql-action/upload-sarif@v3
-      with:
-          sarif_file: 'trivy-results.sarif'
+    #- name: Upload Trivy scan results to GitHub Security tab
+     # uses: github/codeql-action/upload-sarif@v3
+     # with:
+       #   sarif_file: 'trivy-results.sarif'
 
     - name: Gitleaks Installation
       run: sudo apt install gitleaks -y

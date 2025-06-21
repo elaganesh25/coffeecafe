@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: coffeeshop-web
-        image: elaganesh25/coffeeshop_web:latest
+        image: elaganesh25/self-hosted-image:latest
         ports:
         - containerPort: 8000
         env:

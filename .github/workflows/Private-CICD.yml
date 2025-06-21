@@ -1,5 +1,5 @@
 
-name: CodeCompile-Build&Push&VulScan-SonarCodeScan-Deploy
+name: CodeCompile-Build&VulScan-SonarCodeScan-Deploy
 
 on:
 #  push:

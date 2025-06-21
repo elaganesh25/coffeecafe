@@ -1,10 +1,9 @@
-name: CICD Pipeline 
+name: CodeCompile-SonarCodeScan-CodeBuild&Push-VulScan-Deploy
 
-#on:
+on:
 #  push:
 #    branches: [ "main" ]
-on:
-  workflow_dispatch:
+   workflow_dispatch:
 
 
 jobs:
@@ -29,14 +28,19 @@ jobs:
         pip install -r requirements.txt
     - name: Run Tests
       run: |
-        python3 manage.py test
+        python manage.py test
       
   security-check:
     runs-on: self-hosted-image
     needs: compile
 
     steps:
-    - uses: actions/checkout@v4
+	  - name: Checkout Code
+      uses: actions/checkout@v4
+	  
+	  - name: Build an image from Dockerfile
+      run: |
+          docker build -t docker.io/my-organization/my-app:${{ github.sha }} .
     - name: Trivy Installation
       run: |
         sudo apt-get install -y wget apt-transport-https gnupg lsb-release
@@ -48,36 +52,45 @@ jobs:
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@7b7aa264d83dc58691451798b4d117d53d21edfe
       with:
-        image-ref: elaganesh25/coffeeshop_web:latest
+        image-ref: 'docker.io/my-organization/my-app:${{ github.sha }}'
         format: table
         exit-code: 0
         ignore-unfixed: true
+		    output: 'trivy-results.sarif'
         vuln-type: 'os,library'
         severity: 'CRITICAL,HIGH'
+	 - name: Upload Trivy scan results to GitHub Security tab
+     uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-results.sarif'
 
-    - name: Gitleaks Installation
+   - name: Gitleaks Installation
       run: sudo apt install gitleaks -y
-    - name: Gitleaks Code Scan
-      run: gitleaks detect source . -r gitleaks-report.json -f json || true
-      
+   - name: Gitleaks Code Scan
+      run: gitleaks detect source . -r gitleaks-report.json -f json || true    
 
 
-  build_project_and_sonar_scan:
+  Sonar_Scan:
+    name: SonarQube
     runs-on: self-hosted-image
     needs: security-check
     steps:
-        
-    - uses: actions/checkout@v4
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
+    - name: Checkout Code
+      uses: actions/checkout@v2
       with:
-        node-version: '18'
-        # Disabling shallow clones is recommended for improving the relevancy of reporting
         fetch-depth: 0
+    - name: Setup Python
+      uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python }}
+    - name: Install tox and any other packages
+      run: pip install tox
+    - name: Run tox
+      run: tox -e py
     - name: SonarQube Scan
       uses: SonarSource/sonarqube-scan-action@v5.2.0 # See the latest version at https://github.com/marketplace/actions/official-sonarqube-scan
       with:
-        pollingTimeoutSec: 60
+        pollingTimeoutSec: 600
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
@@ -94,14 +107,10 @@ jobs:
   buils_docker_image_and_push:
     runs-on: self-hosted-image
     needs: build_project_and_sonar_scan
+	
     steps:
     - uses: actions/checkout@v4
-    - name: Download JAR artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: app-jar
-        path: app  # this will download JAR to ./app folder
-        
+	
     - name: Login to Docker Hub
       uses: docker/login-action@v3
       with:
@@ -119,7 +128,7 @@ jobs:
         tags: elaganesh25/self-hosted-image:latest
         file: ./Dockerfile
 
-  deploy_to_kubernetes:
+    deploy_to_kubernetes:
     runs-on: self-hosted-image
     needs: buils_docker_image_and_push
     steps:
@@ -135,17 +144,18 @@ jobs:
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ap-south-1
+        aws-region: ${{ env.AWS_REGION }}
+		
     - name: Set up kubectl
-      uses: azure/setup-kubectl@v3
+      uses: aws-action/setup-kubectl@v3
       with:
         version: latest
+		
     - name: Configure kubeconfig
       run: |
         mkdir -p $HOME/.kube
         echo "${{ secrets.EKS_KUBECONFIG }}" > $HOME/.kube/config
     - name: Deploy to EKS
       run: |
-        kubectl apply -f ds.yml
-
-  
+        kubectl apply -f deployment.yaml
+        kubectl apply -f service.yaml

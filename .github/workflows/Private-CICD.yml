@@ -2,9 +2,9 @@
 name: CodeCompile-Build&VulScan-SonarCodeScan-Deploy
 
 on:
-#  push:
-#    branches: [ "main" ]
-   workflow_dispatch:
+  push:
+    branches: [ "main" ]
+#  workflow_dispatch:
 
 
 jobs:
@@ -157,3 +157,4 @@ jobs:
       run: |
         kubectl apply -f k8s/deployment.yaml
         kubectl apply -f k8s/service.yaml
+

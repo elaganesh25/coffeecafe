@@ -7,8 +7,8 @@ from django.contrib import messages
 from .models import UserProfile
 
 def home(request):
-    app1 = Coffee.objects.all()
-    return render(request, 'home.html', {'coffee': app1})
+    app = Coffee.objects.all()
+    return render(request, 'home.html', {'coffee': app})
 
 def add_to_cart(request, coffee_id):
     if not request.user.is_authenticated:
